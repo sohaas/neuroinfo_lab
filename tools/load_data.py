@@ -17,6 +17,7 @@ def load_data(config, type):
         print("Data type must be 'train', 'test', or 'validate'.")
         return
 
+    #TODO remove prints
     x = np.load(config['data'][type]['x'])
     #print("x:", x.shape)
     #print("x max value: ", np.amax(x[0, :, :, :]))

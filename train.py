@@ -1,3 +1,4 @@
+from asyncio.constants import LOG_THRESHOLD_FOR_CONNLOST_WRITES
 import tensorflow as tf
 import numpy as np
 import argparse
@@ -8,9 +9,6 @@ from tools.load_data import load_data
 from tools.plot_data import plot_cube, plot_map, plot_train_process
 
 
-#TODO what to do with cosmo prediction ?
-#TODO what to do with timepoints (only train on data from one year) ?
-
 def train_DeconvNet(config):
     """
     Train DeconvNet
@@ -19,7 +17,6 @@ def train_DeconvNet(config):
                           hyperparameters
     """
 
-    #TODO
     # load training data
     train_x, train_y, train_c, train_t = load_data(config, 'train')
     # load test data
@@ -28,7 +25,6 @@ def train_DeconvNet(config):
     # set timestamp to check results with plots
     ts = 250
 
-    #TODO uncomment
     # plot given meteorological data (to transform)
     plot_cube(train_x, ts, train_t, config)
     # plot given radar precipitation map (result reference)
@@ -37,11 +33,11 @@ def train_DeconvNet(config):
     # load model
     deconvNet = DeconvNet()
 
-    #TODO
+    #TODO add more if necessary, e.g. learning rate
     # load hyperparameters
     n_epochs = config['training']['epochs']
 
-    # TODO do via config, use different loss (pred values can be negative)
+    #TODO do via config, use different loss (pred values can be negative)
     # initialize loss
     loss_function = tf.keras.losses.MeanSquaredError()
     # initialize the optimizer
@@ -61,7 +57,7 @@ def train_DeconvNet(config):
     train_loss, _ = test(deconvNet, train_x, train_y, loss_function)
     train_losses.append(train_loss)
 
-    #TODO batches ?
+    #TODO use batches
 
     # train for n_epochs epochs, starting with epoch 0
     for epoch in range(n_epochs):
@@ -76,7 +72,6 @@ def train_DeconvNet(config):
 
             if observation % 5000 == 0:
                 plot_map(np.expand_dims(prediction, axis=0), 0, train_t[observation], config['data']['output_path'] + 'epoch_' + str(epoch) + '_' + str(int(observation / 5000)) + '.png')
-                print(np.amin(prediction[:, :]))
         
         # track training loss
         train_losses.append(tf.reduce_mean(epoch_loss))
@@ -94,7 +89,17 @@ def train_DeconvNet(config):
     
 def train_step(model, input, target, loss_function, optimizer):
     """
-    TODO
+    Train model
+        Args:
+            model: <tf.keras.Model> model to train
+            input: <np.ndarray> training data (model input)
+            target: <np.ndarray> target for model training
+            loss_function: <tf.keras.losses> loss function (calculating loss 
+                            given model prediction and target)
+            optimzer: <tf.keras.optimizers> optimizer (improving model)
+        Returns:
+            prediction: <tf.Tensor> model output
+            loss: <tf.Tensor> loss value
     """
 
     with tf.GradientTape() as tape:
@@ -109,7 +114,16 @@ def train_step(model, input, target, loss_function, optimizer):
 
 def test(model, input, target, loss_function):
     """
-    TODO
+    Test model
+        Args:
+            model: <tf.keras.Model> model to test
+            input: <np.ndarray> test data (model input)
+            target: <np.ndarray> target for model test
+            loss_function: <tf.keras.losses> loss function (calculating loss 
+                            given model prediction and target)
+        Returns:
+            test_loss: <tf.Tensor> loss calculated when testing model
+            test_accuracy: <tf.Tensor> accuracy calculated when testing model
     """
 
     test_accuracy_aggregator = []
