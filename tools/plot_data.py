@@ -3,6 +3,15 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
 def plot_cube(data, ts, timepoints, config):
+    """
+    Plot 3D cube of meteorological data (deviation from mean precipitation),
+    scaled to color extreme values
+        Args:
+            data: <np.ndarray> input data to plot (4D)
+            ts: <int> timestamp, i.e. which observation to plot
+            timepoints: <np.ndarray> timestamp information (date, time)
+            config <dict> config file containing the output directory path
+    """
 
     if data.ndim != 4:
         print("Data should have 4 dimensions but has", data.ndim)
@@ -30,6 +39,14 @@ def plot_cube(data, ts, timepoints, config):
 
 
 def plot_map(data, ts, timepoints, config):
+    """
+    Plot 2D map of radar precipitation
+        Args:
+            data: <np.ndarray> input data to plot (3D)
+            ts: <int> timestamp, i.e. which observation to plot
+            timepoints: <np.ndarray> timestamp information (date, time)
+            config <dict> config file containing the output directory path
+    """
 
     if data.ndim != 3:
         print("Data should have 3 dimensions but has", data.ndim)

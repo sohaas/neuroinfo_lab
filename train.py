@@ -11,7 +11,13 @@ from tools.plot_data import plot_cube, plot_map
 #TODO what to do with cosmo prediction ?
 #TODO what to do with timepoints (only train on data from one year) ?
 
-def train_Model(config):
+def train_DeconvNet(config):
+    """
+    Train DeconvNet
+        Args:
+            config <dict> config file containing directory paths and 
+                          hyperparameters
+    """
 
     """
     Load data
@@ -205,6 +211,6 @@ if __name__ == "__main__":
         config = yaml.load(fp, Loader=yaml.FullLoader)
 
     if args.model == "DeconvNet":
-        train_Model(config)
+        train_DeconvNet(config)
     else:
         print("No valid model found")
