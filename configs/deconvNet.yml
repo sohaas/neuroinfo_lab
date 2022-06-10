@@ -1,8 +1,7 @@
 training:
-    epochs: 25
-    batch_size: 64
+    epochs: 10
 optimizer:
-    model:
+    deconvNet:
         name: "adam"
         learning_rate: 0.0002
         beta_1: 0.5

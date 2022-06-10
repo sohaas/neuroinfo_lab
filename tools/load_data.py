@@ -30,7 +30,7 @@ def load_data(config, type):
     t = np.load(config['data'][type]['t'])
     #print("t:", t.shape)
 
-    data = [x, y, c, t]
+    data = (x, y, c, t)
 
     return data
 
