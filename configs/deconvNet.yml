@@ -1,0 +1,28 @@
+training:
+    epochs: 25
+    batch_size: 64
+optimizer:
+    model:
+        name: "adam"
+        learning_rate: 0.0002
+        beta_1: 0.5
+        beta_2: 0.999
+        epsilon: 0.0000001
+data:
+    directory: data/
+    train:
+        x: data/01_trn_x.npy
+        y: data/01_trn_y.npy
+        c: data/01_trn_c.npy
+        t: data/01_trn_t.npy
+    test:
+        x: data/01_trn_x.npy
+        y: data/01_trn_y.npy
+        c: data/01_trn_c.npy
+        t: data/01_trn_t.npy
+    validate:
+        x: data/01_trn_x.npy
+        y: data/01_trn_y.npy
+        c: data/01_trn_c.npy
+        t: data/01_trn_t.npy
+    output_path: plots/
