@@ -1,12 +1,6 @@
 training:
-    epochs: 10
-optimizer:
-    deconvNet:
-        name: "adam"
-        learning_rate: 0.0002
-        beta_1: 0.5
-        beta_2: 0.999
-        epsilon: 0.0000001
+    epochs: 25
+    batches: 61
 data:
     directory: data/
     train:
@@ -25,3 +19,4 @@ data:
         c: data/01_trn_c.npy
         t: data/01_trn_t.npy
     output_path: plots/
+    weight_path: weights/

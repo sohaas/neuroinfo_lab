@@ -10,7 +10,7 @@ def plot_cube(data, ts, timepoints, config):
             data: <np.ndarray> input data to plot (4D)
             ts: <int> timestamp, i.e. which observation to plot
             timepoints: <np.ndarray> timestamp information (date, time)
-            config <dict> config file containing the output directory path
+            config: <dict> config file containing the output directory path
     """
 
     if data.ndim != 4:
@@ -30,13 +30,11 @@ def plot_cube(data, ts, timepoints, config):
     img = ax.scatter(x, y, z, c=plot_data.ravel(), norm=colors.SymLogNorm(linthresh=1, linscale=1, vmin=np.amin(plot_data), vmax=np.amax(plot_data), base=10), cmap='RdBu_r')
     cbar = fig.colorbar(img, orientation='horizontal')
     cbar.set_label('Deviation from mean')
-    #TODO meaning of values ?
-    ax.set_xlabel("Area x")
-    ax.set_ylabel("Area y")
+    ax.set_xlabel("Area in km")
+    ax.set_ylabel("Area in km")
     ax.set_zlabel("Variables")
     plt.title("Meteorological Data \n {} at {}".format(date[0], date[2][:-10]))
     plt.savefig(config['data']['output_path'] + 'input.png')
-    #plt.show()
     plt.close()
 
 
@@ -64,28 +62,29 @@ def plot_map(data, ts, timepoints, path):
     x, y = np.mgrid[:plot_data.shape[0], :plot_data.shape[1]]
     img = ax.contourf(x, y, plot_data, cmap='jet')
     cbar = fig.colorbar(img, orientation='horizontal')
-    #TODO unit ?
-    cbar.set_label('Precipitation in some unit')
-    #TODO meaning of values ?
-    ax.set_xlabel("Area x")
-    ax.set_ylabel("Area y")
+    cbar.set_label('Precipitation in mm/h')
+    ax.set_xlabel("Area in km")
+    ax.set_ylabel("Area in km")
     if timepoints.size > 1:
         date = str(np.datetime64(timepoints[ts])).partition('T')
+        plt.title("Radar Precipitation \n {} at {}".format(date[0], date[2][:-10]))
+    elif timepoints.size == 1:
+        date = str(np.datetime64(timepoints)).partition('T')
         plt.title("Radar Precipitation \n {} at {}".format(date[0], date[2][:-10]))
     else:
         plt.title("Radar Precipitation")
     plt.savefig(path)
-    #plt.show()
     plt.close()
 
 
-def plot_train_process(train_losses, test_losses, test_accuracies):
+def plot_train_process(train_losses, test_losses, test_accuracies, config):
     """
     Plot model training process
         Args:
             train_losses: <list> losses of training dataset
             test_losses: <list> losses of test dataset
             test_accuracies: <list> accuracies of test dataset 
+            config: <dict> config file containing the output directory path
     """
 
     plt.figure()
@@ -97,5 +96,4 @@ def plot_train_process(train_losses, test_losses, test_accuracies):
     plt.legend((line1,line2, line3),("Training", "Test", "Test accuracy"))
     plt.title("Training process")
     plt.savefig(config['data']['output_path'] + 'training_process')
-    #plt.show()
     plt.close()

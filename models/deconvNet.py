@@ -11,18 +11,31 @@ class DeconvNet(tf.keras.Model):
         super(DeconvNet, self).__init__()
 
         self.deconv_layers = [
-            tf.keras.layers.Conv2DTranspose(filters=1, kernel_size=(1,1), strides=(2,2), padding='same'),
+            # 61 x 36 x 36 x 143
+            tf.keras.layers.Dense(143),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.LeakyReLU(alpha=0.1),
+
+            # 61 x 72 x 72 x 143
+            tf.keras.layers.Conv2DTranspose(143, kernel_size=4, strides=2, padding="same"),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.LeakyReLU(alpha=0.1),
+
+            # 61 x 72 x 72 x 1
+            tf.keras.layers.Conv2DTranspose(1, kernel_size=1, strides=1, padding="same"),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.LeakyReLU(alpha=0.1),
+
+            # 61 x 72 x 72 x 1
+            tf.keras.layers.Dense(1),
             tf.keras.layers.BatchNormalization(),
             tf.keras.layers.Activation(tf.nn.relu)
         ]
 
 
     def call(self, x, training):
-        #TODO remove prints
-        #print("input: ", x.shape)
-        x = np.expand_dims(x, axis=0)
-        #print("expanded input: ", x.shape)
 
+        # 61 x 36 x 36 x 143
         for layer in self.deconv_layers:
 
             if (isinstance(layer, tf.keras.layers.BatchNormalization)):
@@ -30,9 +43,8 @@ class DeconvNet(tf.keras.Model):
             else:
               x = layer(x)
 
-        #print("output:", x.shape)
+        # 61 x 72 x 72
         x = tf.squeeze(x)
-        #print("reshaped output:", x.shape)
 
         return x
 
