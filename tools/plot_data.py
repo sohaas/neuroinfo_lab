@@ -77,23 +77,21 @@ def plot_map(data, ts, timepoints, path):
     plt.close()
 
 
-def plot_train_process(train_losses, test_losses, test_accuracies, config):
+def plot_train_process(train_losses, test_losses, config):
     """
     Plot model training process
         Args:
             train_losses: <list> losses of training dataset
             test_losses: <list> losses of test dataset
-            test_accuracies: <list> accuracies of test dataset 
             config: <dict> config file containing the output directory path
     """
 
     plt.figure()
     line1, = plt.plot(train_losses)
     line2, = plt.plot(test_losses)
-    line3, = plt.plot(test_accuracies)
     plt.xlabel("Training steps")
-    plt.ylabel("Loss/accuracy")
-    plt.legend((line1,line2, line3),("Training", "Test", "Test accuracy"))
+    plt.ylabel("Loss")
+    plt.legend((line1,line2),("Training", "Test"))
     plt.title("Training process")
     plt.savefig(config['data']['output_path'] + 'training_process')
     plt.close()

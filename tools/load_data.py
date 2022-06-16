@@ -25,5 +25,9 @@ def load_data(config, type):
     c = np.load(config['data'][type]['c'])
     # load timepoints
     t = np.load(config['data'][type]['t'])
+    #return (x, y, c, t)
 
-    return (x, y, c, t)
+    # train only on 5000 observations
+    data = (x[:5000,:,:,:], y[:5000,:,:], c[:5000,:,:], t[:5000])
+    return data
+    

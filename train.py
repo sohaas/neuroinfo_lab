@@ -23,16 +23,17 @@ def train_DeconvNet(config):
     test_x, test_y, test_c, test_t = load_data(config, 'test')
 
     # set timestamp to visualize results with plots
-    ts = 250
+    ts_rain = 250
+    ts_no_rain = 275
 
     # plot given meteorological data (to transform)
-    plot_cube(train_x, ts, train_t, config)
-    # plot sample from normalized meteorological data
-    plot_map(train_x[:,:,:,97], ts, train_t, config['data']['output_path'] + 'input_normalized.png')
-    # plot cosmo prediction data
-    plot_map(train_c, ts, train_t, config['data']['output_path'] + 'input_not_normalized.png')
-    # plot given radar precipitation map (result reference)
-    plot_map(train_y, ts, train_t, config['data']['output_path'] + 'output_target.png')
+    plot_cube(train_x, ts_rain, train_t, config)
+    # plot sample from given meteorological data
+    plot_map(train_x[:,:,:,97], ts_rain, train_t, config['data']['output_path'] + 'input_sample.png')
+    # plot given radar precipitation map (target reference)
+    plot_map(train_y, ts_rain, train_t, config['data']['output_path'] + 'output_rain_tar.png')
+    # plot no rain target reference
+    plot_map(train_y, ts_no_rain, train_t, config['data']['output_path'] + 'output_no_rain_tar.png')
 
     # load model
     deconvNet = DeconvNet()
@@ -42,28 +43,26 @@ def train_DeconvNet(config):
     n_batches = int(train_x.shape[0] / config['training']['batches'])
 
     # initialize loss
-    loss_function = tf.keras.losses.MeanSquaredError()
+    loss_function = tf.keras.losses.MeanSquaredLogarithmicError()
     # initialize optimizer
     optimizer = tf.keras.optimizers.SGD()
 
     # initialize lists for visualization
     train_losses = []
     test_losses = []
-    test_accuracies = []
 
     # test once before we begin
-    test_loss, test_accuracy = test(deconvNet, test_x, test_y, loss_function, config)
+    test_loss = test(deconvNet, test_x, test_y, loss_function, config)
     test_losses.append(test_loss)
-    test_accuracies.append(test_accuracy)
 
     # check how model performs on train data once before we begin
-    train_loss, _ = test(deconvNet, train_x, train_y, loss_function, config)
+    train_loss = test(deconvNet, train_x, train_y, loss_function, config)
     train_losses.append(train_loss)
 
     # train for n_epochs epochs
     for epoch in range(n_epochs):
-        print("Epoch: {} starting with accuracy {}".format(str(epoch),
-              test_accuracies[-1]))
+        print("Epoch {} starting with loss {}".format(str(epoch),
+              test_losses[-1]))
         
         epoch_loss = []
 
@@ -86,17 +85,18 @@ def train_DeconvNet(config):
         # track training loss
         train_losses.append(tf.reduce_mean(epoch_loss))
 
-        # test, so we can track accuracy and test loss
-        test_loss, test_accuracy = test(deconvNet, test_x, test_y, loss_function, config)
+        # test, so we can track test loss
+        test_loss = test(deconvNet, test_x, test_y, loss_function, config)
         test_losses.append(test_loss)
-        test_accuracies.append(test_accuracy)
 
-    # plot sample prediction and target for comparison
-    final_pred = deconvNet(np.expand_dims(train_x[ts, :, :, :], axis=0))
-    plot_map(np.expand_dims(final_pred, axis=0), 0, train_t[ts], config['data']['output_path'] + 'output_prediction.png')
+    # plot sample predictions for comparison to target
+    pred_rain = deconvNet(np.expand_dims(train_x[ts_rain, :, :, :], axis=0))
+    plot_map(np.expand_dims(pred_rain, axis=0), 0, train_t[ts_rain], config['data']['output_path'] + 'output_rain_pred.png')
+    pred_no_rain = deconvNet(np.expand_dims(train_x[ts_no_rain, :, :, :], axis=0))
+    plot_map(np.expand_dims(pred_no_rain, axis=0), 0, train_t[ts_no_rain], config['data']['output_path'] + 'output_no_rain_pred.png')
 
-    # visualize accuracy and loss for training and test data
-    plot_train_process(train_losses, test_losses, test_accuracies, config)
+    # visualize loss for training and test data
+    plot_train_process(train_losses, test_losses, config)
 
     # save model weights
     deconvNet.save_weights(config['data']['weight_path'] + 'deconv_weights')
@@ -138,12 +138,9 @@ def test(model, input, target, loss_function, config):
                             given model prediction and target)
         Returns:
             test_loss: <tf.Tensor> loss calculated when testing model
-            test_accuracy: <tf.Tensor> accuracy calculated when testing model
     """
 
-    test_accuracies = []
     test_losses = []
-
     n_batches = int(input.shape[0] / config['training']['batches'])
 
     for batch in range(n_batches):
@@ -152,15 +149,11 @@ def test(model, input, target, loss_function, config):
     
         prediction = model(x_batch, False)
         sample_test_loss = loss_function(y_batch, prediction)
-        sample_test_accuracy =  np.argmax(y_batch, axis=1) == np.argmax(prediction, axis=1)
-        sample_test_accuracy = np.mean(sample_test_accuracy)
         test_losses.append(sample_test_loss.numpy())
-        test_accuracies.append(np.mean(sample_test_accuracy))
 
     test_loss = tf.reduce_mean(test_losses)
-    test_accuracy = tf.reduce_mean(test_accuracies)
 
-    return test_loss, test_accuracy
+    return test_loss
 
 
 if __name__ == "__main__":
