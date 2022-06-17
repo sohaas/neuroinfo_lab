@@ -12,17 +12,17 @@ class DeconvNet(tf.keras.Model):
 
         self.deconv_layers = [
             # 61 x 72 x 72 x 143
-            tf.keras.layers.Conv2DTranspose(143, kernel_size=2, strides=2, padding="valid"),
+            tf.keras.layers.Conv2DTranspose(143, kernel_size=(2, 2), strides=(2, 2), padding="valid"),
             tf.keras.layers.BatchNormalization(),
             tf.keras.layers.LeakyReLU(alpha=0.1),
 
             # 61 x 72 x 72 x 72
-            tf.keras.layers.Conv2DTranspose(72, kernel_size=1, strides=1, padding="valid"),
+            tf.keras.layers.Conv2DTranspose(72, kernel_size=(1, 1), strides=(1,1), padding="valid"),
             tf.keras.layers.BatchNormalization(),
             tf.keras.layers.LeakyReLU(alpha=0.1),
 
             # 61 x 72 x 72 x 1
-            tf.keras.layers.Conv2DTranspose(1, kernel_size=1, strides=1, padding="valid"),
+            tf.keras.layers.Conv2DTranspose(1, kernel_size=(1, 1), strides=(1,1), padding="valid"),
             tf.keras.layers.BatchNormalization(),
             tf.keras.layers.LeakyReLU(alpha=0.1),
 
